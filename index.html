@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="HAM 语录。浏览图片，随机抽取，使用呼号参与分类。">
+  <title>HAM 语录</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css?v=4">
+  <script defer src="/app.js?v=4"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="/">HAM 语录</a>
+    <div class="header-actions">
+      <button id="randomTopBtn" class="text-button" type="button">随机一条</button>
+      <button id="identityBtn" class="identity-button" type="button">填写呼号</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="archive">
+  <section class="page-head" aria-labelledby="page-title">
+    <h1 id="page-title">语录库 <span id="statImages">—</span></h1>
+    <p>收录 HAM 圈的聊天截图和有趣瞬间。自由浏览，填写呼号后参与分类。</p>
+  </section>
+
+  <section class="tools" aria-label="查找语录">
+    <input id="searchInput" type="search" placeholder="搜索文件名或编号" aria-label="搜索语录" autocomplete="off">
+    <select id="sourceFilter" aria-label="按来源筛选">
+      <option value="">全部来源</option>
+      <option value="HAM">HAM</option>
+      <option value="RLL">RLL</option>
+    </select>
+    <select id="sortFilter" aria-label="排序方式">
+      <option value="default">默认排序</option>
+      <option value="popular">参与最多</option>
+      <option value="least">参与最少</option>
+      <option value="random">随机排序</option>
+    </select>
+  </section>
+
+  <section class="filter-section" aria-label="分类筛选">
+    <div class="category-chips" id="categoryChips">
+      <button type="button" class="chip active" data-category="">全部</button>
+    </div>
+    <button type="button" class="create-category" id="addCategoryBtn">＋ 新分类</button>
+  </section>
+  <div class="result-count" id="resultCount">正在加载…</div>
+
+  <section class="gallery" id="gallery" aria-label="语录列表" aria-live="polite"></section>
+  <section class="empty hidden" id="emptyState">
+    <p>没有找到语录</p>
+    <button type="button" class="plain-button" id="resetBtn">清除筛选</button>
+  </section>
+  <nav class="pagination" id="pagination" aria-label="分页"></nav>
+</main>
+<footer class="site-footer"><div class="wrap footer-inner"><span>HAM 语录</span><span>73 · 呼号仅用于社区署名</span></div></footer>
+
+<dialog id="detailDialog" class="detail-dialog">
+  <div class="dialog-header">
+    <span id="detailSerial">语录详情</span>
+    <button type="button" class="close-button" data-close="detailDialog" aria-label="关闭">×</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-image"><img id="detailImage" alt="语录原图"></div>
+    <div class="detail-panel">
+      <span id="detailSource" class="detail-source">—</span>
+      <h2 id="detailTitle">—</h2>
+      <p id="detailVotes" class="detail-votes">—</p>
+      <p class="small-label">当前分类</p>
+      <strong id="detailCategory" class="detail-category">待分类</strong>
+      <div id="voteBreakdown" class="breakdown"></div>
+      <div class="detail-actions">
+        <button id="classifyBtn" type="button" class="primary-button">参与分类</button>
+        <button id="favoriteBtn" type="button" class="plain-button">收藏</button>
+      </div>
+      <div class="detail-bottom">
+        <button id="shareBtn" type="button" class="link-button">复制链接</button>
+        <button id="reportBtn" type="button" class="link-button">内容反馈</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="identityDialog" class="form-dialog">
+  <form id="identityForm" method="dialog">
+    <div class="dialog-header"><span>填写呼号</span><button type="button" class="close-button" data-close="identityDialog" aria-label="关闭">×</button></div>
+    <div class="dialog-content">
+      <h2>先填写你的呼号</h2>
+      <p>用于分类署名，无须登录或提供密码。不能验证呼号所有权。</p>
+      <label for="callsignInput">呼号</label>
+      <input id="callsignInput" name="callsign" maxlength="16" required autocomplete="off" placeholder="例如：BG4ABC">
+      <div id="identityError" class="error" role="alert"></div>
+      <button type="submit" class="primary-button submit-button">确定</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="classifyDialog" class="form-dialog">
+  <form id="classifyForm" method="dialog">
+    <div class="dialog-header"><span>语录分类</span><button type="button" class="close-button" data-close="classifyDialog" aria-label="关闭">×</button></div>
+    <div class="dialog-content">
+      <h2>选择分类</h2>
+      <p>以 <b id="classifyBy">—</b> 的呼号提交。重新提交会覆盖原来的分类。</p>
+      <label for="classificationSelect">分类</label>
+      <select id="classificationSelect" required></select>
+      <div id="classifyError" class="error" role="alert"></div>
+      <button type="submit" class="primary-button submit-button">提交分类</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="newCategoryDialog" class="form-dialog">
+  <form id="newCategoryForm" method="dialog">
+    <div class="dialog-header"><span>新建分类</span><button type="button" class="close-button" data-close="newCategoryDialog" aria-label="关闭">×</button></div>
+    <div class="dialog-content">
+      <h2>创建分类</h2>
+      <p>选择简短且容易理解的分类名称。</p>
+      <label for="categoryNameInput">名称</label>
+      <input id="categoryNameInput" maxlength="16" required placeholder="例如：天线玄学">
+      <div id="newCategoryError" class="error" role="alert"></div>
+      <button type="submit" class="primary-button submit-button">创建分类</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="reportDialog" class="form-dialog">
+  <form id="reportForm" method="dialog">
+    <div class="dialog-header"><span>内容反馈</span><button type="button" class="close-button" data-close="reportDialog" aria-label="关闭">×</button></div>
+    <div class="dialog-content">
+      <h2>反馈这张图片</h2>
+      <p>如包含不宜公开的信息，请说明原因。</p>
+      <label for="reportReason">反馈原因</label>
+      <textarea id="reportReason" rows="4" minlength="4" maxlength="200" required></textarea>
+      <div id="reportError" class="error" role="alert"></div>
+      <button type="submit" class="primary-button submit-button">提交反馈</button>
+    </div>
+  </form>
+</dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
