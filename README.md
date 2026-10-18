@@ -4,7 +4,7 @@
 
 ## Cloudflare Pages 连接 GitHub
 
-在 Cloudflare 控制台创建 Pages 项目并连接此仓库，部署分支为 `main`，无需构建命令，**输出目录为 `.`（仓库根目录）**。部署目录根部必须同时存在 `index.html`、`_worker.js`、`quotes.json`、`images/`。
+已创建 GitHub 连接的 Cloudflare Pages 项目 `ham-quota`，网站地址为 https://ham-quota.pages.dev 。生产分支为 `main`，无需构建命令，**输出目录为 `.`（仓库根目录）**。部署目录根部包含 `index.html`、`_worker.js`、`quotes.json`、`images/`。
 
 图片浏览、搜索、筛选、随机语录无需额外配置。
 
